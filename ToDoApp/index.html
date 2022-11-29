@@ -18,10 +18,20 @@
         <h1>To Do</h1>
     </header>
     <main>
-        <div>
+        <div>Categories
+            <div id="add-cat-div">
+                <input id="newCategoryName" type="text" placeholder="New Category"/>
+                <input id="newCategoryColor" type="color"/>
+                <button id="add-category">+</button>
+            </div>
+
+            <ul id="categoryList"></ul>
+        </div>
+        <div>To Dos
             <div id="add-div">
                 <input id="newToDoName" type="text" placeholder="New ToDo"/>
                 <button id="add">+</button>
+                <div id="category-add"></div>
             </div>
 
             <ul id="toDoList">

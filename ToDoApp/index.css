@@ -6,10 +6,11 @@ body {
 }
 
 button {
-    background-color: #D4AF37;
-    color: black;
+    background-color: #3EB489;
+    color: white;
     padding: .5em;
     border-radius: 5px;
+    font-weight: bold;
     font-family: 'Sen', sans-serif;
     margin: .5em 0;
 }
@@ -28,9 +29,9 @@ header {
 
 main {
     height: 75vh;
-    width: 50vw;
+    width: 75vw;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     margin: auto;
     border: 2px, solid, white;
 }
@@ -58,7 +59,21 @@ ul div {
 
 .task-container{
     padding: 0 .5em;
-    border: .5px solid#D4AF37;
+    border: .5px solid#3EB489;
+    margin : .5em 0;
+    border-radius: 10px;
+}
+
+.task-categories{
+    display: flex;
+    justify-content: flex-start;
+    padding-bottom: .5em;
+}
+
+.category-container{
+    padding: 0 .5em;
+    margin : .5em 0;
+    border-radius: 10px;
 }
 
 ul div p {

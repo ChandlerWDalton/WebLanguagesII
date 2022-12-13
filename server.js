@@ -2,6 +2,9 @@ const express = require('express');
 const app = express();
 const port = 6000
 
+
+app.use(express.static('client'))
+
 const toDos = [];
 
 const categories = [];
@@ -75,3 +78,7 @@ app.delete('/category', (req, res) => {
         res.status(403).send({msg: 'Request Body must contain a category'})
     }
 });
+
+app.listen(port, () => {
+    console.log(`Listening on port ${port}`)
+})

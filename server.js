@@ -1,13 +1,15 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
-const port = 6000
+const port = 8000
 
 
 app.use(express.static('client'))
+app.use(bodyParser.json());
 
-const toDos = [];
+let toDos = [];
 
-const categories = [];
+let categories = [];
 
 app.get('/todos', (req, res) => {
     res.send(toDos)

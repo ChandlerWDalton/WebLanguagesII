@@ -18,8 +18,7 @@ let toDo = {
     name: '',
     done: false,
     id: '',
-    categories: [],
-    dueDate: ''
+    categories: []
 };
 
 let categoryList = [];
@@ -31,6 +30,21 @@ let category = {
 };
 
 let toDoCategories = [];
+
+async function getToDos(){
+    await fetch('/todos').then(res => res.json())
+    .then(data => toDoList = data)
+    setActiveToDos();
+}
+
+async function getCategories(){
+    await fetch('/categories').then(res => res.json())
+    .then(data => categoryList = data)
+    updateCategoryDisplay();
+}
+
+getToDos();
+getCategories();
 
 deleteAllButton.onclick = () => {
     for(var i = toDoList.length - 1; i >= 0; i--){
@@ -77,7 +91,7 @@ addCategory.onclick = async () => {
 };
 
 function editClick(id){
-    const index = toDoList.findIndex(item => item.id === id);
+    const index = toDoList.findIndex(item => JSON.parse(item.id) === id);
     const editDiv = document.querySelector(`#task${id}`)
     editDiv.innerHTML = '';
     //Create Edit Field
@@ -95,7 +109,7 @@ function editClick(id){
 };
 
 async function editToDo(newName, id){
-    const index = toDoList.findIndex(item => item.id === id);
+    const index = toDoList.findIndex(item => JSON.parse(item.id) === id);
     toDoList[index].name = newName;
     let todo = toDoList[index];
     await fetch('/todo', {
@@ -110,7 +124,7 @@ async function editToDo(newName, id){
 }
 
 function editCategoryClick(id){
-    const index = categoryList.findIndex(item => item.id === id);
+    const index = categoryList.findIndex(item => JSON.parse(item.id) === id);
     const editDiv = document.querySelector(`#category${id}`)
     editDiv.innerHTML = '';
     //Create Edit Field
@@ -128,13 +142,13 @@ function editCategoryClick(id){
 };
 
 async function activateCategory(id){
-    const index = activeCategoriesList.findIndex(item => item.id === id);
+    const index = activeCategoriesList.findIndex(item => JSON.parse(item.id) === id);
     const category = document.querySelector(`#category${id}`)
     if (index !== -1){
         activeCategoriesList.splice(index, 1)
         category.style.border = "0px solid #000000";
     } else {
-        const categoriesIndex = categoryList.findIndex(item => item.id === id);
+        const categoriesIndex = categoryList.findIndex(item => JSON.parse(item.id) === id);
         if(categoriesIndex !== -1){
             activeCategoriesList = [categoryList[categoriesIndex],  ...activeCategoriesList];
             category.style.border = "1px solid #FFFFFF";
@@ -166,7 +180,7 @@ async function checkIfActiveToDo(todo){
 }
 
 async function editCategory(newName, id){
-    const index = categoryList.findIndex(item => item.id === id);
+    const index = categoryList.findIndex(item => JSON.parse(item.id) === id);
     categoryList[index].name = newName;
     let category = categoryList[index];
     await fetch('/category', {
@@ -178,7 +192,7 @@ async function editCategory(newName, id){
     }).then(res => res.json())
     .then(data => categoryList = data)
     if(activeCategoriesList.length > 0){
-        const activeIndex = activeCategoriesList.findIndex(item => item.id === id);
+        const activeIndex = activeCategoriesList.findIndex(item => JSON.parse(item.id) === id);
         if(activeIndex !== -1){
             activeCategoriesList[activeIndex].name = newName;
         }
@@ -196,19 +210,19 @@ async function editCategory(newName, id){
 
 function addToDoCategory(id){
     const button = document.querySelector(`#toDoCategory${id}`);
-    const index = toDoCategories.findIndex(item => item.id === id);
+    const index = toDoCategories.findIndex(item => JSON.parse(item.id) === id);
     if(index !== -1){
         toDoCategories.splice(index, 1);
         button.style.backgroundColor = 'gray'
     } else {
-        const categoriesIndex = categoryList.findIndex(item => item.id === id);
+        const categoriesIndex = categoryList.findIndex(item => JSON.parse(item.id) === id);
         toDoCategories = [categoryList[categoriesIndex],  ...toDoCategories];
         button.style.backgroundColor = categoryList[categoriesIndex].color;
     }
 }
 
 async function deleteToDo(id){
-    const index = toDoList.findIndex(item => item.id === id);
+    const index = toDoList.findIndex(item => JSON.parse(item.id) === id);
     let todo = toDoList[index]
     await fetch('/todo', {
         method: 'DELETE',
@@ -218,11 +232,12 @@ async function deleteToDo(id){
         }
     }).then(res => res.json())
     .then(data => toDoList = data)
+    console.log(toDoList)
     setActiveToDos();
 }
 
 async function deleteCategory(id){
-    const index = categoryList.findIndex(item => item.id === id);
+    const index = categoryList.findIndex(item => JSON.parse(item.id) === id);
     let category = categoryList[index]
     await fetch('/category', {
         method: 'DELETE',
@@ -233,7 +248,7 @@ async function deleteCategory(id){
     }).then(res => res.json())
     .then(data => categoryList = data)
     if(activeCategoriesList.length > 0){
-        const activeIndex = activeCategoriesList.findIndex(item => item.id === id);
+        const activeIndex = activeCategoriesList.findIndex(item => JSON.parse(item.id) === id);
         if(activeIndex !== -1){
             activeCategoriesList.splice(activeIndex, 1);
         }
@@ -250,9 +265,18 @@ async function deleteCategory(id){
     setActiveToDos();
 }
 
-function completeToDo(id){
-    const index = toDoList.findIndex(item => item.id === id);
+async function completeToDo(id){
+    const index = toDoList.findIndex(item => JSON.parse(item.id) === id);
     toDoList[index].done = !toDoList[index].done
+    let todo = toDoList[index];
+    await fetch('/todo', {
+        method: 'PUT',
+        body: JSON.stringify({todo: todo}),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(res => res.json())
+    .then(data => toDoList = data)
     setActiveToDos();
 }
 

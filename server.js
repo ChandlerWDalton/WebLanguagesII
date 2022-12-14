@@ -1,81 +1,115 @@
+const ToDo = require('./todo');
+const Category = require('./category');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const port = 8000
+const mongoose = require('mongoose');
+const uri = "mongodb+srv://todo_user:cQzs4y1PdAPDcaQn@cluster0.081q2sn.mongodb.net/?retryWrites=true&w=majority";
+
+mongoose.connect(
+    uri,
+    {
+        useNewUrlParser: true
+    }
+)
+.then(e => console.log('MongoDB Ready'))
+.catch(console.error);
 
 
 app.use(express.static('client'))
 app.use(bodyParser.json());
 
-let toDos = [];
 
-let categories = [];
+// let toDos = [];
 
-app.get('/todos', (req, res) => {
+// let categories = [];
+
+app.get('/todos', async (req, res) => {
+    const toDos = await getToDos();
     res.send(toDos)
 });
 
-app.post('/todo', (req, res) => {
+app.post('/todo', async (req, res) => {
     if(req.body.todo){
-        toDos = [...toDos, req.body.todo];
-        res.status(200).send(toDos)
+        const newTodo = new ToDo({
+            ...req.body.todo
+        })
+        newTodo.save().then(doc => {
+            console.log('new todo saved to DB');
+            console.log(doc)
+        })
+        res.status(200).send(await getToDos())
     } else {
         res.status(403).send({msg: 'Request Body must contain a todo'})
     }
 });
 
-app.put('/todo', (req, res) => {
-    if(req.body.todo){
-        const id = req.body.todo.id;
-        const index = toDos.findIndex(item => item.id === id);
-        toDos[index] = req.body.todo
-        res.status(200).send(toDos)
-    } else {
-        res.status(403).send({msg: 'Request Body must contain a todo'})
-    }
-});
-
-app.delete('/todo', (req, res) => {
+app.put('/todo', async (req, res) => {
     if(req.body.todo){
         const id = req.body.todo.id;
-        const index = toDos.findIndex(item => item.id === id);
-        toDos.splice(index, 1);
-        res.status(200).send(toDos)
+        let todo = await ToDo.findOne({id});
+
+        if(todo){
+            todo.name = req.body.todo.name
+            todo.done = req.body.todo.done
+            await todo.save()
+        }
+        res.status(200).send(await getToDos())
     } else {
         res.status(403).send({msg: 'Request Body must contain a todo'})
     }
 });
 
-app.get('/categories', (req, res) => {
+app.delete('/todo', async (req, res) => {
+    if(req.body.todo){
+        const id = req.body.todo.id;
+        await ToDo.deleteOne({id});
+        res.status(200).send(await getToDos());
+    } else {
+        res.status(403).send({msg: 'Request Body must contain a todo'})
+    }
+});
+
+app.get('/categories', async (req, res) => {
+    const categories = await getCategories();
     res.send(categories)
 });
 
-app.post('/category', (req, res) => {
+app.post('/category', async (req, res) => {
     if(req.body.category){
-        categories = [...categories, req.body.category];
-        res.status(200).send(categories)
+        const newCategory = new Category({
+            ...req.body.category
+        })
+        newCategory.save().then(doc => {
+            console.log('new category saved to DB');
+            console.log(doc)
+        })
+        res.status(200).send(await getCategories())
     } else {
         res.status(403).send({msg: 'Request Body must contain a category'})
     }
 });
 
-app.put('/category', (req, res) => {
+app.put('/category', async (req, res) => {
     if(req.body.category){
         const id = req.body.category.id;
-        const index = categories.findIndex(item => item.id === id);
-        categories[index] = req.body.category
-        res.status(200).send(categories)
+        let category = await Category.findOne({id});
+        if(category){
+            category.name = req.body.category.name
+            await category.save()
+        }
+        res.status(200).send(await getCategories())
     } else {
         res.status(403).send({msg: 'Request Body must contain a category'})
     }
 });
 
-app.delete('/category', (req, res) => {
+app.delete('/category', async (req, res) => {
     if(req.body.category){
         const id = req.body.category.id;
-        const index = categories.findIndex(item => item.id === id);
-        categories.splice(index, 1);
-        res.status(200).send(categories)
+        await Category.deleteOne({id});
+        res.status(200).send(await getCategories());
     } else {
         res.status(403).send({msg: 'Request Body must contain a category'})
     }
@@ -84,3 +118,15 @@ app.delete('/category', (req, res) => {
 app.listen(port, () => {
     console.log(`Listening on port ${port}`)
 })
+
+//DB
+
+async function getToDos(){
+    const allTodos = await ToDo.find()
+    return allTodos
+}
+
+async function getCategories(){
+    const allCategories = await Category.find();
+    return allCategories;
+}

@@ -5,10 +5,11 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = 8000
 const mongoose = require('mongoose');
-
+require('dotenv').config();
+const uri = "";
 
 mongoose.connect(
-    uri,
+    process.env.MONGO_URI,
     {
         useNewUrlParser: true
     }
@@ -30,7 +31,7 @@ app.post('/todo', async (req, res) => {
         const newTodo = new ToDo({
             ...req.body.todo
         })
-        newTodo.save().then(doc => {
+        await newTodo.save().then(doc => {
             console.log('new todo saved to DB');
             console.log(doc)
         })
@@ -76,7 +77,7 @@ app.post('/category', async (req, res) => {
         const newCategory = new Category({
             ...req.body.category
         })
-        newCategory.save().then(doc => {
+        await newCategory.save().then(doc => {
             console.log('new category saved to DB');
             console.log(doc)
         })

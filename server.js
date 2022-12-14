@@ -20,11 +20,6 @@ mongoose.connect(
 app.use(express.static('client'))
 app.use(bodyParser.json());
 
-
-// let toDos = [];
-
-// let categories = [];
-
 app.get('/todos', async (req, res) => {
     const toDos = await getToDos();
     res.send(toDos)
